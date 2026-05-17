@@ -67,6 +67,7 @@ class FollowTest extends TestCase
         $response = $this->withToken($token)->deleteJson("/api/users/{$target->id}/follow");
 
         $response->assertStatus(200)->assertJson(['following' => false]);
+        $this->assertFalse($auth->fresh()->isFollowing($target));
     }
 
     public function test_follow_requires_auth(): void
@@ -81,5 +82,11 @@ class FollowTest extends TestCase
         $token = $auth->createToken('api')->plainTextToken;
 
         $this->withToken($token)->postJson('/api/users/99999/follow')->assertStatus(404);
+    }
+
+    public function test_unfollow_requires_auth(): void
+    {
+        $target = User::factory()->create();
+        $this->deleteJson("/api/users/{$target->id}/follow")->assertStatus(401);
     }
 }
