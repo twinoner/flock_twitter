@@ -30,8 +30,9 @@ export default function Login() {
         {error && <p role="alert" className="mb-4 rounded bg-red-50 p-3 text-sm text-red-600">{error}</p>}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Email</label>
+            <label htmlFor="email" className="mb-1 block text-sm font-medium text-gray-700">Email</label>
             <input
+              id="email"
               type="email"
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
@@ -40,8 +41,9 @@ export default function Login() {
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Password</label>
+            <label htmlFor="password" className="mb-1 block text-sm font-medium text-gray-700">Password</label>
             <input
+              id="password"
               type="password"
               value={form.password}
               onChange={(e) => setForm({ ...form, password: e.target.value })}
