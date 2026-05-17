@@ -40,8 +40,7 @@ class LikeTest extends TestCase
         $response = $this->withToken($token)->deleteJson("/api/tweets/{$tweet->id}/like");
 
         $response->assertStatus(200)
-                 ->assertJson(['liked' => false])
-                 ->assertJsonStructure(['liked', 'likes_count']);
+                 ->assertJson(['liked' => false, 'likes_count' => 0]);
 
         $this->assertDatabaseMissing('likes', [
             'user_id'  => $auth->id,
@@ -85,6 +84,17 @@ class LikeTest extends TestCase
     {
         $tweet = Tweet::factory()->create();
         $this->deleteJson("/api/tweets/{$tweet->id}/like")->assertStatus(401);
+    }
+
+    public function test_unliking_a_tweet_never_liked_returns_200(): void
+    {
+        $auth  = User::factory()->create();
+        $tweet = Tweet::factory()->create();
+        $token = $auth->createToken('api')->plainTextToken;
+
+        $this->withToken($token)->deleteJson("/api/tweets/{$tweet->id}/like")
+             ->assertStatus(200)
+             ->assertJson(['liked' => false, 'likes_count' => 0]);
     }
 
     public function test_like_nonexistent_tweet_returns_404(): void
