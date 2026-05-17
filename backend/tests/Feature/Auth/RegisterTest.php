@@ -67,4 +67,30 @@ class RegisterTest extends TestCase
 
         $response->assertStatus(422)->assertJsonValidationErrors(['username']);
     }
+
+    public function test_register_fails_with_invalid_username_format(): void
+    {
+        $response = $this->postJson('/api/auth/register', [
+            'name'                  => 'John',
+            'username'              => 'john doe',
+            'email'                 => 'john@example.com',
+            'password'              => 'password123',
+            'password_confirmation' => 'password123',
+        ]);
+
+        $response->assertStatus(422)->assertJsonValidationErrors(['username']);
+    }
+
+    public function test_register_fails_with_short_password(): void
+    {
+        $response = $this->postJson('/api/auth/register', [
+            'name'                  => 'John',
+            'username'              => 'johndoe',
+            'email'                 => 'john@example.com',
+            'password'              => 'short',
+            'password_confirmation' => 'short',
+        ]);
+
+        $response->assertStatus(422)->assertJsonValidationErrors(['password']);
+    }
 }
