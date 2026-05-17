@@ -41,6 +41,9 @@ class User extends Authenticatable
 
     public function isFollowing(User $user): bool
     {
+        if ($this->relationLoaded('following')) {
+            return $this->following->contains('id', $user->id);
+        }
         return $this->following()->where('following_id', $user->id)->exists();
     }
 }
