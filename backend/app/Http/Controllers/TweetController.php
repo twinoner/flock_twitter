@@ -14,8 +14,8 @@ class TweetController extends Controller
         $tweet = $request->user()->tweets()->create($request->validated());
 
         $tweet->load('user');
-        $tweet->loadCount('likes');
-        $tweet->liked_by_auth_user = false;
+        $tweet->setAttribute('likes_count', 0);
+        $tweet->setAttribute('liked_by_auth_user', false);
 
         return response()->json($tweet, 201);
     }

@@ -97,4 +97,12 @@ class TweetTest extends TestCase
         $this->deleteJson("/api/tweets/{$tweet->id}")
              ->assertStatus(401);
     }
+
+    public function test_delete_nonexistent_tweet_returns_404(): void
+    {
+        [, $token] = $this->actingAsUser();
+
+        $this->withToken($token)->deleteJson('/api/tweets/99999')
+             ->assertStatus(404);
+    }
 }

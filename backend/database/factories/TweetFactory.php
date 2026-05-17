@@ -11,7 +11,7 @@ class TweetFactory extends Factory
     {
         return [
             'user_id' => User::factory(),
-            'body'    => fake()->realText(rand(40, 200)),
+            'body'    => fake()->realText(fake()->numberBetween(40, 200)),
         ];
     }
 }
