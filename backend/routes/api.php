@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\FollowController;
+use App\Http\Controllers\LikeController;
 use App\Http\Controllers\TimelineController;
 use App\Http\Controllers\TweetController;
 use Illuminate\Http\Request;
@@ -20,8 +21,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/tweets',               [TweetController::class, 'store']);
     Route::delete('/tweets/{tweet}',     [TweetController::class, 'destroy']);
 
-    Route::post('/users/{user}/follow',  [FollowController::class, 'store']);
-    Route::delete('/users/{user}/follow',[FollowController::class, 'destroy']);
+    Route::post('/users/{user}/follow',   [FollowController::class, 'store']);
+    Route::delete('/users/{user}/follow', [FollowController::class, 'destroy']);
+
+    Route::post('/tweets/{tweet}/like',   [LikeController::class, 'store']);
+    Route::delete('/tweets/{tweet}/like', [LikeController::class, 'destroy']);
 });
 
 Route::get('/user', function (Request $request) {
