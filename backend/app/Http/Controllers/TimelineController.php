@@ -11,7 +11,7 @@ class TimelineController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $limit  = min((int) $request->query('limit', 20), 50);
+        $limit  = max(1, min((int) $request->query('limit', 20), 50));
         $cursor = $request->query('cursor');
 
         $followingIds = $request->user()->following()->pluck('users.id');
@@ -23,14 +23,17 @@ class TimelineController extends Controller
             ->orderByDesc('id');
 
         if ($cursor) {
-            [$cursorDate, $cursorId] = explode('_', base64_decode($cursor), 2);
-            $query->where(function ($q) use ($cursorDate, $cursorId) {
-                $q->where('created_at', '<', $cursorDate)
-                  ->orWhere(function ($q2) use ($cursorDate, $cursorId) {
-                      $q2->where('created_at', $cursorDate)
-                         ->where('id', '<', (int) $cursorId);
-                  });
-            });
+            $decoded = base64_decode(strtr($cursor, '-_', '+/'));
+            if ($decoded && str_contains($decoded, '_')) {
+                [$cursorDate, $cursorId] = explode('_', $decoded, 2);
+                $query->where(function ($q) use ($cursorDate, $cursorId) {
+                    $q->where('created_at', '<', $cursorDate)
+                      ->orWhere(function ($q2) use ($cursorDate, $cursorId) {
+                          $q2->where('created_at', $cursorDate)
+                             ->where('id', '<', (int) $cursorId);
+                      });
+                });
+            }
         }
 
         // Fetch one extra to know if there's a next page
@@ -53,7 +56,7 @@ class TimelineController extends Controller
         $nextCursor = null;
         if ($hasMore) {
             $last       = $tweets->last();
-            $nextCursor = base64_encode($last->created_at->format('Y-m-d H:i:s') . '_' . $last->id);
+            $nextCursor = rtrim(strtr(base64_encode($last->created_at->format('Y-m-d H:i:s') . '_' . $last->id), '+/', '-_'), '=');
         }
 
         return response()->json([
