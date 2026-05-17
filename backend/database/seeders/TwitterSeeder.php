@@ -102,11 +102,12 @@ class TwitterSeeder extends Seeder
         foreach ($users as $index => $user) {
             $tweets = $tweetSets[$index];
             foreach ($tweets as $i => $body) {
+                $createdAt = now()->subDays(rand(0, 6))->subHours(rand(0, 23))->subMinutes(rand(0, 59));
                 Tweet::factory()->create([
                     'user_id'    => $user->id,
                     'body'       => $body,
-                    'created_at' => now()->subDays(rand(0, 6))->subHours(rand(0, 23))->subMinutes(rand(0, 59)),
-                    'updated_at' => now()->subDays(rand(0, 6))->subHours(rand(0, 23)),
+                    'created_at' => $createdAt,
+                    'updated_at' => $createdAt,
                 ]);
             }
         }
