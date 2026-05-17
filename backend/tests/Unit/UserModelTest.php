@@ -83,17 +83,11 @@ class UserModelTest extends TestCase
 
     public function test_user_fillable_includes_required_fields(): void
     {
-        $user = User::factory()->make([
-            'name'     => 'Test User',
-            'username' => 'testuser',
-            'email'    => 'test@example.com',
-            'bio'      => 'A bio',
-            'avatar'   => null,
-        ]);
+        $fillable = (new User())->getFillable();
 
-        $this->assertEquals('Test User', $user->name);
-        $this->assertEquals('testuser', $user->username);
-        $this->assertEquals('A bio', $user->bio);
+        foreach (['name', 'username', 'email', 'password', 'bio', 'avatar'] as $field) {
+            $this->assertContains($field, $fillable, "Expected '{$field}' to be fillable");
+        }
     }
 
     public function test_user_hidden_fields_not_in_array(): void
