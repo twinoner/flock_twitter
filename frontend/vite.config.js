@@ -8,4 +8,7 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: './src/tests/setup.js',
   },
+  esbuild: {
+    jsx: 'automatic',
+  },
 })
