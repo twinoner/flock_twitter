@@ -9,6 +9,7 @@ import Register from './pages/Register'
 import Home     from './pages/Home'
 import Profile  from './pages/Profile'
 import Search   from './pages/Search'
+import AppLayout from './components/Layout/AppLayout'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -41,9 +42,11 @@ export default function App() {
               <Route path="/register" element={<Register />} />
             </Route>
             <Route element={<ProtectedRoute />}>
-              <Route path="/"              element={<Home />} />
-              <Route path="/search"        element={<Search />} />
-              <Route path="/:username"     element={<Profile />} />
+              <Route element={<AppLayout />}>
+                <Route path="/"              element={<Home />} />
+                <Route path="/search"        element={<Search />} />
+                <Route path="/:username"     element={<Profile />} />
+              </Route>
             </Route>
           </Routes>
         </BrowserRouter>
