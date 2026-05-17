@@ -14,12 +14,24 @@ class UserController extends Controller
             ->withCount(['followers', 'following'])
             ->firstOrFail();
 
-        return response()->json($user);
+        return response()->json([
+            'id'              => $user->id,
+            'name'            => $user->name,
+            'username'        => $user->username,
+            'bio'             => $user->bio,
+            'avatar'          => $user->avatar,
+            'followers_count' => $user->followers_count,
+            'following_count' => $user->following_count,
+        ]);
     }
 
     public function search(Request $request): JsonResponse
     {
-        $q = strtolower($request->query('q', ''));
+        $q = trim(strtolower($request->query('q', '')));
+
+        if ($q === '') {
+            return response()->json(['data' => []]);
+        }
 
         $users = User::whereRaw('LOWER(name) LIKE ?', ["%{$q}%"])
             ->orWhereRaw('LOWER(username) LIKE ?', ["%{$q}%"])

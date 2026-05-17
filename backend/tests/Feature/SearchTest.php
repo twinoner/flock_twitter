@@ -96,6 +96,15 @@ class SearchTest extends TestCase
         $response->assertStatus(200)->assertJsonCount(1, 'data');
     }
 
+    public function test_search_returns_empty_for_blank_query(): void
+    {
+        User::factory()->count(3)->create();
+
+        $response = $this->getJson('/api/users/search?q=');
+
+        $response->assertStatus(200)->assertJson(['data' => []]);
+    }
+
     public function test_followers_and_following_require_auth(): void
     {
         User::factory()->create(['username' => 'alice']);
