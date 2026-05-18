@@ -32,6 +32,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/users/{username}/followers', [UserController::class, 'followers']);
     Route::get('/users/{username}/following', [UserController::class, 'following']);
+    Route::get('/users/{username}/tweets',    [UserController::class, 'tweets']);
 });
 
 Route::get('/user', function (Request $request) {

@@ -58,4 +58,20 @@ class UserController extends Controller
 
         return response()->json(['data' => $following]);
     }
+
+    public function tweets(string $username, Request $request): JsonResponse
+    {
+        $user   = User::where('username', $username)->firstOrFail();
+        $authId = $request->user()?->id;
+
+        $tweets = $user->tweets()
+            ->with('user:id,name,username,avatar')
+            ->withCount('likes')
+            ->when($authId, fn ($q) => $q->withExists(['likes as liked_by_auth_user' => fn ($q) => $q->where('user_id', $authId)]))
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->get();
+
+        return response()->json(['data' => $tweets]);
+    }
 }

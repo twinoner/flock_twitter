@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { getFollowers, getFollowing, getUser } from '../api/users'
+import { getFollowers, getFollowing, getUser, getUserTweets } from '../api/users'
+import TweetCard from '../components/Tweet/TweetCard'
 import FollowButton from '../components/User/FollowButton'
 import UserCard from '../components/User/UserCard'
 import { useAuth } from '../contexts/AuthContext'
@@ -9,7 +10,7 @@ import { useAuth } from '../contexts/AuthContext'
 export default function Profile() {
   const { username } = useParams()
   const { user: authUser } = useAuth()
-  const [tab, setTab] = useState('followers')
+  const [tab, setTab] = useState('tweets')
 
   const { data: profile, status } = useQuery({
     queryKey: ['user', username],
@@ -26,6 +27,12 @@ export default function Profile() {
     queryKey: ['following', username],
     queryFn: () => getFollowing(username),
     enabled: tab === 'following',
+  })
+
+  const { data: tweetsData } = useQuery({
+    queryKey: ['userTweets', username],
+    queryFn: () => getUserTweets(username),
+    enabled: tab === 'tweets',
   })
 
   if (status === 'pending') return <p className="text-center text-gray-400">Loading…</p>
@@ -63,7 +70,7 @@ export default function Profile() {
       </div>
 
       <div className="flex border-b border-gray-200">
-        {['followers', 'following'].map((t) => (
+        {['tweets', 'followers', 'following'].map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -77,13 +84,17 @@ export default function Profile() {
       </div>
 
       <div className="space-y-2">
+        {tab === 'tweets' &&
+          (tweetsData?.data ?? []).map((tweet) => (
+            <TweetCard key={tweet.id} tweet={tweet} />
+          ))}
         {tab === 'followers' &&
           (followersData?.data ?? []).map((u) => (
             <UserCard key={u.id} user={u} isFollowing={false} />
           ))}
         {tab === 'following' &&
           (followingData?.data ?? []).map((u) => (
-            <UserCard key={u.id} user={u} isFollowing={false} />
+            <UserCard key={u.id} user={u} isFollowing={true} />
           ))}
       </div>
     </div>
