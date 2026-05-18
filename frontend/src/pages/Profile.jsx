@@ -39,7 +39,7 @@ export default function Profile() {
   if (status === 'error') return <p className="text-center text-red-500">User not found.</p>
 
   const isOwnProfile = authUser?.id === profile.id
-  const isFollowing = profile.followers?.some((f) => f.id === authUser?.id)
+  const isFollowing = profile.is_following ?? false
 
   return (
     <div className="space-y-4">
@@ -90,11 +90,11 @@ export default function Profile() {
           ))}
         {tab === 'followers' &&
           (followersData?.data ?? []).map((u) => (
-            <UserCard key={u.id} user={u} isFollowing={false} />
+            <UserCard key={u.id} user={u} isFollowing={u.is_following} />
           ))}
         {tab === 'following' &&
           (followingData?.data ?? []).map((u) => (
-            <UserCard key={u.id} user={u} isFollowing={true} />
+            <UserCard key={u.id} user={u} isFollowing={u.is_following} />
           ))}
       </div>
     </div>

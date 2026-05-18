@@ -5,14 +5,20 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
-    public function show(string $username): JsonResponse
+    public function show(string $username, Request $request): JsonResponse
     {
         $user = User::where('username', $username)
             ->withCount(['followers', 'following'])
             ->firstOrFail();
+
+        $authUser    = Auth::guard('sanctum')->user();
+        $isFollowing = $authUser && $authUser->id !== $user->id
+            ? $authUser->isFollowing($user)
+            : false;
 
         return response()->json([
             'id'              => $user->id,
@@ -22,6 +28,7 @@ class UserController extends Controller
             'avatar'          => $user->avatar,
             'followers_count' => $user->followers_count,
             'following_count' => $user->following_count,
+            'is_following'    => $isFollowing,
         ]);
     }
 
@@ -41,20 +48,38 @@ class UserController extends Controller
         return response()->json(['data' => $users]);
     }
 
-    public function followers(string $username): JsonResponse
+    public function followers(string $username, Request $request): JsonResponse
     {
-        $user      = User::where('username', $username)->firstOrFail();
+        $user    = User::where('username', $username)->firstOrFail();
+        $authId  = $request->user()?->id;
+
+        $authFollowingIds = $authId
+            ? User::find($authId)->following()->pluck('users.id')->flip()
+            : collect();
+
         $followers = $user->followers()
-            ->get(['users.id', 'users.name', 'users.username', 'users.avatar']);
+            ->get(['users.id', 'users.name', 'users.username', 'users.avatar'])
+            ->map(fn ($u) => array_merge($u->toArray(), [
+                'is_following' => $authFollowingIds->has($u->id),
+            ]));
 
         return response()->json(['data' => $followers]);
     }
 
-    public function following(string $username): JsonResponse
+    public function following(string $username, Request $request): JsonResponse
     {
-        $user      = User::where('username', $username)->firstOrFail();
+        $user    = User::where('username', $username)->firstOrFail();
+        $authId  = $request->user()?->id;
+
+        $authFollowingIds = $authId
+            ? User::find($authId)->following()->pluck('users.id')->flip()
+            : collect();
+
         $following = $user->following()
-            ->get(['users.id', 'users.name', 'users.username', 'users.avatar']);
+            ->get(['users.id', 'users.name', 'users.username', 'users.avatar'])
+            ->map(fn ($u) => array_merge($u->toArray(), [
+                'is_following' => $authFollowingIds->has($u->id),
+            ]));
 
         return response()->json(['data' => $following]);
     }
